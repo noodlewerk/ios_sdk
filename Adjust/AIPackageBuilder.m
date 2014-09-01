@@ -56,7 +56,6 @@
 
 - (AIActivityPackage *)buildReattributionPackage {
     NSMutableDictionary *parameters = [self defaultParameters];
-    [self parameters:parameters setDictionaryJson:self.deeplinkParameters forKey:@"deeplink_parameters"];
 
     AIActivityPackage *reattributionPackage = [self defaultActivityPackage];
     reattributionPackage.path = @"/reattribute";
@@ -97,6 +96,10 @@
     [self parameters:parameters setInt:self.subsessionCount      forKey:@"subsession_count"];
     [self parameters:parameters setDuration:self.sessionLength   forKey:@"session_length"];
     [self parameters:parameters setDuration:self.timeSpent       forKey:@"time_spent"];
+
+    // reatributions
+    [self parameters:parameters setDictionaryJson:self.deeplinkParameters forKey:@"deeplink_parameters"];
+    [self parameters:parameters setDate:self.deeplinkTime forKey:@"deeplink_time"];
 
     return parameters;
 }
@@ -141,7 +144,7 @@
 }
 
 - (void)parameters:(NSMutableDictionary *)parameters setDate:(double)value forKey:(NSString *)key {
-    if (value < 0) return;
+    if (value <= 0) return;
 
     NSString *dateString = [AIUtil dateFormat:value];
     [self parameters:parameters setString:dateString forKey:key];

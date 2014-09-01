@@ -42,7 +42,7 @@
 
 // reattributions
 @property (nonatomic, copy) NSDictionary* deeplinkParameters;
-
+@property (nonatomic, assign) double deeplinkTime;
 
 - (AIActivityPackage *)buildSessionPackage;
 - (AIActivityPackage *)buildEventPackage;

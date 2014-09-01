@@ -46,6 +46,8 @@ static const uint64_t kTimerLeeway   =  1 * NSEC_PER_SEC; // 1 second
 @property (nonatomic, assign) BOOL internalEnabled;
 @property (nonatomic, copy) NSString *vendorId;
 @property (nonatomic, copy) NSString *pushToken;
+@property (nonatomic, copy) NSDictionary* deeplinkParameters;
+@property (nonatomic, assign) double deeplinkTime;
 
 @end
 
@@ -266,6 +268,10 @@ static const uint64_t kTimerLeeway   =  1 * NSEC_PER_SEC; // 1 second
             self.activityState.subsessionCount,
             self.activityState.sessionCount];
     }
+
+    if (self.deeplinkParameters != nil) {
+        [self transferDeeplinkPackage];
+    }
 }
 
 - (void)endInternal {
@@ -378,12 +384,6 @@ static const uint64_t kTimerLeeway   =  1 * NSEC_PER_SEC; // 1 second
         return;
     }
 
-    AIPackageBuilder *reattributionBuilder = [[AIPackageBuilder alloc] init];
-    reattributionBuilder.deeplinkParameters = adjustDeepLinks;
-    [self injectGeneralAttributes:reattributionBuilder];
-    AIActivityPackage *reattributionPackage = [reattributionBuilder buildReattributionPackage];
-    [self.packageHandler addPackage:reattributionPackage];
-    [self.packageHandler sendFirstPackage];
 
     [self.logger debug:@"Reattribution %@", adjustDeepLinks];
 }
@@ -464,9 +464,19 @@ static const uint64_t kTimerLeeway   =  1 * NSEC_PER_SEC; // 1 second
 - (void)transferSessionPackage {
     AIPackageBuilder *sessionBuilder = [[AIPackageBuilder alloc] init];
     [self injectGeneralAttributes:sessionBuilder];
+    [self injectDeeplink:sessionBuilder];
     [self.activityState injectSessionAttributes:sessionBuilder];
     AIActivityPackage *sessionPackage = [sessionBuilder buildSessionPackage];
     [self.packageHandler addPackage:sessionPackage];
+    [self.packageHandler sendFirstPackage];
+}
+
+- (void)transferDeeplinkPackage {
+    AIPackageBuilder *reattributionBuilder = [[AIPackageBuilder alloc] init];
+    [self injectDeeplink:reattributionBuilder];
+    [self injectGeneralAttributes:reattributionBuilder];
+    AIActivityPackage *reattributionPackage = [reattributionBuilder buildReattributionPackage];
+    [self.packageHandler addPackage:reattributionPackage];
     [self.packageHandler sendFirstPackage];
 }
 
@@ -486,6 +496,13 @@ static const uint64_t kTimerLeeway   =  1 * NSEC_PER_SEC; // 1 second
     if (self.trackMacMd5) {
         builder.macShortMd5 = self.macShortMd5;
     }
+}
+
+- (void)injectDeeplink:(AIPackageBuilder *)builder {
+    builder.deeplinkParameters  = self.deeplinkParameters;
+    builder.deeplinkTime        = self.deeplinkTime;
+    self.deeplinkParameters     = nil;
+    self.deeplinkTime           = 0;
 }
 
 # pragma mark - timer
