@@ -29,7 +29,6 @@
     }
 
     self.error        = [jsonDict objectForKey:@"error"];
-    self.trackerToken = [jsonDict objectForKey:@"tracker_token"];
     self.trackerName  = [jsonDict objectForKey:@"tracker_name"];
     self.network      = [jsonDict objectForKey:@"network"];
     self.campaign     = [jsonDict objectForKey:@"campaign"];
@@ -55,13 +54,12 @@
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"[kind:%@ success:%d willRetry:%d "
-                                        "error:%@ trackerToken:%@ trackerName:%@ "
+                                        "error:%@ trackerName:%@ "
                                         "network:%@ campaign:%@ adgroup:%@ creative:%@]",
             self.activityKindString,
             self.success,
             self.willRetry,
             self.error.aiQuote,
-            self.trackerToken,
             self.trackerName.aiQuote,
             self.network.aiQuote,
             self.campaign.aiQuote,
@@ -78,10 +76,6 @@
 
     if (self.error != nil) {
         [responseDataDic setObject:self.error forKey:@"error"];
-    }
-
-    if (self.trackerToken != nil) {
-        [responseDataDic setObject:self.trackerToken forKey:@"trackerToken"];
     }
 
     if (self.trackerName != nil) {

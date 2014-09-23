@@ -39,9 +39,6 @@
 // the following attributes are only set when error is nil
 // (when activity was tracked successfully and response could be parsed)
 
-// tracker token of current device
-@property (nonatomic, copy) NSString *trackerToken;
-
 // tracker name of current device
 @property (nonatomic, copy) NSString *trackerName;
 
